@@ -1,7 +1,6 @@
 import WindowManager from './WindowManager.js'
 
 // инициализация переменных для работы с three.js
-const t = THREE;
 let camera, scene, renderer, world, windowManager;
 //let near, far; // границы отсечения (используются, если не закомментированы)
 let pixelResolution = window.devicePixelRatio ? window.devicePixelRatio : 1; // получение разрешения экрана в пикселях
@@ -58,20 +57,20 @@ else {
 
 	// тут настраиваем сцену
 	function setupScene() {
-		camera = new t.OrthographicCamera(0, 0, window.innerWidth, window.innerHeight, -10000, 10000); // создание ортографической камеры
+		camera = new THREE.OrthographicCamera(0, 0, window.innerWidth, window.innerHeight, -10000, 10000); // создание ортографической камеры
 
 		camera.position.z = 2.5; // позиция камеры
 		//near = camera.position.z - .5; // ближняя граница отсечения
 		//far = camera.position.z + 0.5; // дальняя граница
 
-		scene = new t.Scene(); // создание сцены
-		scene.background = new t.Color(0.0); // установка фона
+		scene = new THREE.Scene(); // создание сцены
+		scene.background = new THREE.Color(0.0); // установка фона
 		scene.add(camera); // добавления камеры
 
-		renderer = new t.WebGLRenderer({ antialias: true, depthBuffer: true }); // создание рендера
+		renderer = new THREE.WebGLRenderer({ antialias: true, depthBuffer: true }); // создание рендера
 		renderer.setPixelRatio(pixelResolution); // установка пискельного отношения
 
-		world = new t.Object3D(); // создание объекта
+		world = new THREE.Object3D(); // создание объекта
 		scene.add(world); // добавления объекта на сцену
 
 		renderer.domElement.setAttribute("id", "scene"); // установка id для dom элемента
@@ -109,16 +108,16 @@ else {
 		for (let i = 0; i < windows.length; i++) {
 			let window = windows[i];
 
-			let cubeColor = new t.Color(); // цвет куба
+			let cubeColor = new THREE.Color(); // цвет куба
 			cubeColor.setHSL(i * .1, 1.0, .5);
 
 			let cubeSize = 100 + i * 50; // размер куба
 			//let s2 = 100 + i * 70;
 			//let cube = new t.Mesh(new t.BoxGeometry(cubeSize, cubeSize, cubeSize), new t.MeshBasicMaterial({ color: c, wireframe: true }));
 
-			let cubeMaterial = new t.MeshBasicMaterial({ color: cubeColor, wireframe: true });
-			let cubeGeometry = new t.BoxGeometry(cubeSize, cubeSize, cubeSize, 1, 1, 1); // Используем 4 параметра для 4D-геометрии
-			let cube = new t.Mesh(cubeGeometry, cubeMaterial);
+			let cubeMaterial = new THREE.MeshBasicMaterial({ color: cubeColor, wireframe: true });
+			let cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize, 1, 1, 1); // Используем 4 параметра для 4D-геометрии
+			let cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
 			cube.position.x = window.shape.x + (window.shape.w * .5);
 			cube.position.y = window.shape.y + (window.shape.h * .5);
@@ -176,7 +175,7 @@ else {
 		let width = window.innerWidth;
 		let height = window.innerHeight
 
-		camera = new t.OrthographicCamera(0, width, 0, height, -10000, 10000);
+		camera = new THREE.OrthographicCamera(0, width, 0, height, -10000, 10000);
 		camera.updateProjectionMatrix();
 		renderer.setSize(width, height);
 	}
