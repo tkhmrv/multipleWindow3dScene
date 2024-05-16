@@ -87,6 +87,11 @@ class WindowManager {
 		}
 	}
 
+	clearAllWindows() {
+		this.#allWindows = []; // очищаем массив allWindows
+		localStorage.removeItem("allWindows"); // удаляем данные об окнах из localStorage
+	  }
+
 	// метод получения размеров текущего окна
 	getWindowShape() {
 		let shapeOfWindow = { x: window.screenLeft, y: window.screenTop, w: window.innerWidth, h: window.innerHeight };

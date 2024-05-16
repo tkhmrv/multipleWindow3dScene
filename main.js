@@ -5,9 +5,9 @@ let objectManager = new ObjectManager();
 
 // инициализация переменных для работы с three.js
 let camera, scene, renderer, world, windowManager;
-let near, far; // границы отсечения (используются, если не закомментированы)
+//let near, far; // границы отсечения (используются, если не закомментированы)
 let pixelResolution = window.devicePixelRatio ? window.devicePixelRatio : 1; // получение разрешения экрана в пикселях
-let torusKnots = []; // массив для хранения кубов
+let torusKnots = []; // массив для хранения торов
 let sceneOffsetTarget = { x: 0, y: 0 }; // смещение сцены пользователем
 let sceneOffsetActual = { x: 0, y: 0 }; // нынешнее смещение сцены
 let isWindowInitialized = false;
@@ -63,17 +63,16 @@ else {
 		camera = new THREE.OrthographicCamera(0, 0, window.innerWidth, window.innerHeight, -10000, 10000); // создание ортографической камеры
 
 		camera.position.z = 2.5; // позиция камеры
-		near = camera.position.z - .5; // ближняя граница отсечения
-		far = camera.position.z + 0.5; // дальняя граница
+		//near = camera.position.z - .5; // ближняя граница отсечения
+		//far = camera.position.z + 0.5; // дальняя граница
 
 		scene = new THREE.Scene(); // создание сцены
 		scene.fog = new THREE.Fog(0x3f7b9d); // добавление тумана
 
-		const light = new THREE.AmbientLight(0x000000);
+		const light = new THREE.AmbientLight(0x000550);
 		scene.add(light);
 
-
-		scene.background = new THREE.Color(0.0); // установка фона
+		scene.background = new THREE.Color(0x076857); // установка фона
 		scene.add(camera); // добавления камеры
 
 		renderer = new THREE.WebGLRenderer({ antialias: true, depthBuffer: true }); // создание рендера
@@ -82,7 +81,10 @@ else {
 		world = new THREE.Object3D(); // создание объекта
 		scene.add(world); // добавления объекта на сцену
 
-		renderer.domElement.setAttribute("id", "scene"); // установка id для dom элемента
+		renderer.autoClear = false;
+		renderer.setClearColor(0x000000, 0.0);
+		//renderer.domElement.setAttribute("id", "scene"); // установка id для dom элемента
+		document.getElementById('canvas').appendChild(renderer.domElement);
 		document.body.appendChild(renderer.domElement); // добавление рендера в dom дерево
 	}
 
@@ -92,29 +94,31 @@ else {
 		windowManager.setShapeOfWindowChangeCallback(updateWindowShape); // коллбэк обновления формы окна
 		windowManager.setWindowChangeCallback(updateNumberOftorusKnots); // коллбэк добавления/убавления окон
 
-		// here you can add your custom metadata to each windows instance
+		// здесь у нас метаданные
 		let metaData = { foo: "bar" };
 
-		// this will init the windowmanager and add this window to the centralised pool of windows
+		// инициализация метаданных
 		windowManager.init(metaData);
 
-		// call update windows initially (it will later be called by the window change callback)
+		//windowManager.clearAllWindows(); // очистка массива со всеми окнами
+
+		// обновление количества торов
 		updateNumberOftorusKnots();
 	}
 
-	// обновление числа кубов
+	// обновление числа торов
 	function updateNumberOftorusKnots() {
 		let windows = windowManager.getWindows(); // получение списка окон
 
-		// удаление всех кубов
+		// удаление всех торов
 		torusKnots.forEach(torusKnot => world.remove(torusKnot));
 		torusKnots = [];
 
-		// создание новых кубов по актуальному количеству окон
+		// создание новых торов по актуальному количеству окон
 		for (let i = 0; i < windows.length; i++) {
 			let window = windows[i];
 
-			let torusKnot = objectManager.createTorusKnot(i)
+			let torusKnot = objectManager.createTorusKnot()
 
 			torusKnot.position.x = window.shape.x + (window.shape.w * .5);
 			torusKnot.position.y = window.shape.y + (window.shape.h * .5);
@@ -149,7 +153,7 @@ else {
 
 		let windows = windowManager.getWindows(); // получение списка окон
 
-		// проходим по всем кубам и обновляем их позицию на основе актульной позиции окон
+		// проходим по всем торам и обновляем их позицию на основе актульной позиции окон
 		for (let i = 0; i < torusKnots.length; i++) {
 			let torusKnot = torusKnots[i];
 			let window = windows[i];
