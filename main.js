@@ -1,10 +1,13 @@
 import WindowManager from './WindowManager.js'
+import ObjectManager from './ObjectManager.js';
+
+let objectManager = new ObjectManager();
 
 // инициализация переменных для работы с three.js
 let camera, scene, renderer, world, windowManager;
-//let near, far; // границы отсечения (используются, если не закомментированы)
+let near, far; // границы отсечения (используются, если не закомментированы)
 let pixelResolution = window.devicePixelRatio ? window.devicePixelRatio : 1; // получение разрешения экрана в пикселях
-let cubes = []; // массив для хранения кубов
+let torusKnots = []; // массив для хранения кубов
 let sceneOffsetTarget = { x: 0, y: 0 }; // смещение сцены пользователем
 let sceneOffsetActual = { x: 0, y: 0 }; // нынешнее смещение сцены
 let isWindowInitialized = false;
@@ -60,10 +63,16 @@ else {
 		camera = new THREE.OrthographicCamera(0, 0, window.innerWidth, window.innerHeight, -10000, 10000); // создание ортографической камеры
 
 		camera.position.z = 2.5; // позиция камеры
-		//near = camera.position.z - .5; // ближняя граница отсечения
-		//far = camera.position.z + 0.5; // дальняя граница
+		near = camera.position.z - .5; // ближняя граница отсечения
+		far = camera.position.z + 0.5; // дальняя граница
 
 		scene = new THREE.Scene(); // создание сцены
+		scene.fog = new THREE.Fog(0x3f7b9d); // добавление тумана
+
+		const light = new THREE.AmbientLight(0x000000);
+		scene.add(light);
+
+
 		scene.background = new THREE.Color(0.0); // установка фона
 		scene.add(camera); // добавления камеры
 
@@ -81,7 +90,7 @@ else {
 	function setupWindowManager() {
 		windowManager = new WindowManager(); // создание экземпляра
 		windowManager.setShapeOfWindowChangeCallback(updateWindowShape); // коллбэк обновления формы окна
-		windowManager.setWindowChangeCallback(updateNumberOfCubes); // коллбэк добавления/убавления окон
+		windowManager.setWindowChangeCallback(updateNumberOftorusKnots); // коллбэк добавления/убавления окон
 
 		// here you can add your custom metadata to each windows instance
 		let metaData = { foo: "bar" };
@@ -90,40 +99,28 @@ else {
 		windowManager.init(metaData);
 
 		// call update windows initially (it will later be called by the window change callback)
-		updateNumberOfCubes();
+		updateNumberOftorusKnots();
 	}
 
 	// обновление числа кубов
-	function updateNumberOfCubes() {
+	function updateNumberOftorusKnots() {
 		let windows = windowManager.getWindows(); // получение списка окон
 
 		// удаление всех кубов
-		cubes.forEach((cube) => {
-			world.remove(cube);
-		})
-
-		cubes = [];
+		torusKnots.forEach(torusKnot => world.remove(torusKnot));
+		torusKnots = [];
 
 		// создание новых кубов по актуальному количеству окон
 		for (let i = 0; i < windows.length; i++) {
 			let window = windows[i];
 
-			let cubeColor = new THREE.Color(); // цвет куба
-			cubeColor.setHSL(i * .1, 1.0, .5);
+			let torusKnot = objectManager.createTorusKnot(i)
 
-			let cubeSize = 100 + i * 50; // размер куба
-			//let s2 = 100 + i * 70;
-			//let cube = new t.Mesh(new t.BoxGeometry(cubeSize, cubeSize, cubeSize), new t.MeshBasicMaterial({ color: c, wireframe: true }));
+			torusKnot.position.x = window.shape.x + (window.shape.w * .5);
+			torusKnot.position.y = window.shape.y + (window.shape.h * .5);
 
-			let cubeMaterial = new THREE.MeshBasicMaterial({ color: cubeColor, wireframe: true });
-			let cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize, 1, 1, 1); // Используем 4 параметра для 4D-геометрии
-			let cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-
-			cube.position.x = window.shape.x + (window.shape.w * .5);
-			cube.position.y = window.shape.y + (window.shape.h * .5);
-
-			world.add(cube);
-			cubes.push(cube);
+			world.add(torusKnot);
+			torusKnots.push(torusKnot);
 		}
 	}
 
@@ -153,17 +150,17 @@ else {
 		let windows = windowManager.getWindows(); // получение списка окон
 
 		// проходим по всем кубам и обновляем их позицию на основе актульной позиции окон
-		for (let i = 0; i < cubes.length; i++) {
-			let cube = cubes[i];
+		for (let i = 0; i < torusKnots.length; i++) {
+			let torusKnot = torusKnots[i];
 			let window = windows[i];
 			let _currentDate = currentDate + i * .5;
 
 			let posTarget = { x: window.shape.x + (window.shape.w * .5), y: window.shape.y + (window.shape.h * .5) }
 
-			cube.position.x += (posTarget.x - cube.position.x) * smoothIndex;
-			cube.position.y += (posTarget.y - cube.position.y) * smoothIndex;
-			cube.rotation.x = _currentDate * .5;
-			cube.rotation.y = _currentDate * .3;
+			torusKnot.position.x += (posTarget.x - torusKnot.position.x) * smoothIndex;
+			torusKnot.position.y += (posTarget.y - torusKnot.position.y) * smoothIndex;
+			torusKnot.rotation.x = _currentDate * .5;
+			torusKnot.rotation.y = _currentDate * .3;
 		};
 
 		renderer.render(scene, camera);
