@@ -72,7 +72,7 @@ else {
 		const light = new THREE.AmbientLight(0x000550);
 		scene.add(light);
 
-		scene.background = new THREE.Color(0x076857); // установка фона
+		scene.background = new THREE.Color(0x006057); // установка фона
 		scene.add(camera); // добавления камеры
 
 		renderer = new THREE.WebGLRenderer({ antialias: true, depthBuffer: true }); // создание рендера
